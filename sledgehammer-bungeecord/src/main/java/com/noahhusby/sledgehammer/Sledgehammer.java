@@ -27,6 +27,7 @@ import java.util.logging.Logger;
 
 import com.noahhusby.sledgehammer.addons.AddonManager;
 import com.noahhusby.sledgehammer.addons.terramap.TerramapAddon;
+import com.noahhusby.sledgehammer.btenet.BTENet;
 import com.noahhusby.sledgehammer.chat.ChatHelper;
 import com.noahhusby.sledgehammer.commands.*;
 import com.noahhusby.sledgehammer.config.ConfigHandler;
@@ -72,6 +73,7 @@ public class Sledgehammer extends Plugin implements Listener {
     @Override
     public void onDisable() {
         addonManager.onDisable();
+        BTENet.getInstance().onDisable();
     }
 
     /**
@@ -109,6 +111,7 @@ public class Sledgehammer extends Plugin implements Listener {
         if(ConfigHandler.terramapEnabled) addonManager.registerAddon(new TerramapAddon());
 
         addonManager.onEnable();
+        BTENet.getInstance().onEnable();
 
         if(!ConfigHandler.warpCommand.equals("")) {
             ProxyServer.getInstance().getPluginManager().registerCommand(this, new WarpCommand());
