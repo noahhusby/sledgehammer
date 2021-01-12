@@ -22,6 +22,8 @@ import com.noahhusby.sledgehammer.chat.ChatConstants;
 import com.noahhusby.sledgehammer.chat.ChatHelper;
 import com.noahhusby.sledgehammer.chat.TextElement;
 import com.noahhusby.sledgehammer.commands.data.Command;
+import com.noahhusby.sledgehammer.permissions.PermissionHandler;
+import com.noahhusby.sledgehammer.permissions.PermissionRequest;
 import com.noahhusby.sledgehammer.players.PlayerManager;
 import com.noahhusby.sledgehammer.players.SledgehammerPlayer;
 import net.md_5.bungee.api.ChatColor;
@@ -40,50 +42,51 @@ public class BorderCommand extends Command {
             return;
         }
 
-        if(hasPerms(sender, "shpresent") && !SledgehammerPlayer.getPlayer(sender).onSledgehammer() && !isAdmin(sender)) {
-            sender.sendMessage(ChatConstants.noPermission);
+        if(!isAllowed(sender)) {
+            sender.sendMessage(ChatConstants.getNotAvailable());
             return;
         }
 
-        if(hasPerms(sender, "earthpresent") && !SledgehammerPlayer.getPlayer(sender).onEarthServer() && !isAdmin(sender)) {
-            sender.sendMessage(ChatConstants.noPermission);
-            return;
-        }
+        PermissionHandler.getInstance().check(SledgehammerPlayer.getPlayer(sender), "sledgehammer.border", (code, global) -> {
+            if(code == PermissionRequest.PermissionCode.PERMISSION) {
+                SledgehammerPlayer p = PlayerManager.getInstance().getPlayer(sender);
+                if(args.length == 0) {
+                    if(p.checkAttribute("BORDER_MODE", false)) {
+                        sender.sendMessage(ChatHelper.makeTitleTextComponent(
+                                new TextElement("Border teleportation is currently set to ", ChatColor.GRAY), new TextElement("off!", ChatColor.RED)));
+                        sender.sendMessage(ChatHelper.makeTextComponent(new TextElement("Use ", ChatColor.GRAY),
+                                new TextElement("/border on", ChatColor.YELLOW), new TextElement(" to turn it on.", ChatColor.GRAY)));
+                        return;
+                    }
 
-        SledgehammerPlayer p = PlayerManager.getInstance().getPlayer(sender);
-        if(args.length == 0) {
-            if(p.getAttributes().contains("NO_BORDER")) {
-                sender.sendMessage(ChatHelper.makeTitleTextComponent(
-                        new TextElement("Border teleportation is currently set to ", ChatColor.GRAY), new TextElement("off!", ChatColor.RED)));
-                sender.sendMessage(ChatHelper.makeTextComponent(new TextElement("Use ", ChatColor.GRAY),
-                        new TextElement("/border on", ChatColor.YELLOW), new TextElement(" to turn it on.", ChatColor.GRAY)));
+                    sender.sendMessage(ChatHelper.makeTitleTextComponent(
+                            new TextElement("Border teleportation is currently set to ", ChatColor.GRAY), new TextElement("on!", ChatColor.GREEN)));
+                    sender.sendMessage(ChatHelper.makeTextComponent(new TextElement("Use ", ChatColor.GRAY),
+                            new TextElement("/border off", ChatColor.YELLOW), new TextElement(" to turn it off.", ChatColor.GRAY)));
+                    return;
+                }
+
+                String command = args[0];
+
+                if(command.equalsIgnoreCase("on")) {
+                    sender.sendMessage(ChatHelper.makeTitleTextComponent(
+                            new TextElement("Border teleportation has been set to ", ChatColor.GRAY), new TextElement("on!", ChatColor.GREEN)));
+                    p.getAttributes().put("BORDER_MODE", true);
+
+                    return;
+                }
+
+                if(command.equalsIgnoreCase("off")) {
+                    sender.sendMessage(ChatHelper.makeTitleTextComponent(
+                            new TextElement("Border teleportation has been set to ", ChatColor.GRAY), new TextElement("off!", ChatColor.RED)));
+                    p.getAttributes().put("BORDER_MODE", false);
+                    return;
+                }
+
+                sender.sendMessage(ChatHelper.makeTextComponent(new TextElement("Usage: /border [on/off]", ChatColor.RED)));
                 return;
             }
-
-            sender.sendMessage(ChatHelper.makeTitleTextComponent(
-                    new TextElement("Border teleportation is currently set to ", ChatColor.GRAY), new TextElement("on!", ChatColor.GREEN)));
-            sender.sendMessage(ChatHelper.makeTextComponent(new TextElement("Use ", ChatColor.GRAY),
-                    new TextElement("/border off", ChatColor.YELLOW), new TextElement(" to turn it off.", ChatColor.GRAY)));
-            return;
-        }
-
-        String command = args[0];
-
-        if(command.equalsIgnoreCase("on")) {
-            sender.sendMessage(ChatHelper.makeTitleTextComponent(
-                    new TextElement("Border teleportation has been set to ", ChatColor.GRAY), new TextElement("on!", ChatColor.GREEN)));
-            p.getAttributes().remove("NO_BORDER");
-
-            return;
-        }
-
-        if(command.equalsIgnoreCase("off")) {
-            sender.sendMessage(ChatHelper.makeTitleTextComponent(
-                    new TextElement("Border teleportation has been set to ", ChatColor.GRAY), new TextElement("off!", ChatColor.RED)));
-            if(!p.getAttributes().contains("NO_BORDER")) p.getAttributes().add("NO_BORDER");
-            return;
-        }
-
-        sender.sendMessage(ChatHelper.makeTextComponent(new TextElement("Usage: /border [on/off]", ChatColor.RED)));
+            sender.sendMessage(ChatConstants.noPermission);
+        });
     }
 }

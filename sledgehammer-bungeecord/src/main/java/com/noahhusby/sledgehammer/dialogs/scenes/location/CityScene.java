@@ -52,7 +52,7 @@ public class CityScene extends DialogScene {
 
     @Override
     public void onFinish() {
-        Location l = new Location(Location.detail.state, getValue("city"), getValue("county"), getValue("state"), getValue("country"));
+        Location l = new Location(Location.detail.city, getValue("city"), getValue("county"), getValue("state"), getValue("country"));
 
         SledgehammerServer s = ServerConfig.getInstance().getServer(server.getName());
 

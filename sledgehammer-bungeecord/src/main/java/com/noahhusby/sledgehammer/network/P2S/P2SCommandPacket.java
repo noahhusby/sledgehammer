@@ -44,11 +44,9 @@ public class P2SCommandPacket extends P2SPacket {
     public JSONObject getMessage(JSONObject data) {
         StringBuilder a = new StringBuilder(args[0]);
 
-        if(args.length > 1) {
-            for(int x = 1; x < args.length; x++) {
+        if(args.length > 1)
+            for(int x = 1; x < args.length; x++)
                 a.append(" ").append(args[x]);
-            }
-        }
 
         data.put("args", a.toString());
         return data;

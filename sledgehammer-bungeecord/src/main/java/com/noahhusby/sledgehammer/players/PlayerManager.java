@@ -18,14 +18,21 @@
 
 package com.noahhusby.sledgehammer.players;
 
-import com.google.common.collect.Sets;
-import com.noahhusby.lib.data.storage.StorageHashMap;
+import com.google.gson.Gson;
+import com.noahhusby.lib.data.storage.StorageList;
+import com.noahhusby.sledgehammer.Sledgehammer;
 import net.md_5.bungee.api.CommandSender;
+import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.api.event.PlayerDisconnectEvent;
+import net.md_5.bungee.api.event.PostLoginEvent;
+import net.md_5.bungee.api.plugin.Listener;
+import net.md_5.bungee.event.EventHandler;
+import net.md_5.bungee.event.EventPriority;
 
 import java.util.*;
 
-public class PlayerManager {
+public class PlayerManager implements Listener {
     private static PlayerManager mInstance = null;
 
     public static PlayerManager getInstance() {
@@ -34,54 +41,78 @@ public class PlayerManager {
     }
 
     List<SledgehammerPlayer> players = new ArrayList<>();
-    StorageHashMap<String, StorableStringArray> attributes = new StorageHashMap<>(StorableStringArray.class);
+    StorageList<Attribute> attributes = new StorageList<>(Attribute.class);
 
-    private PlayerManager() {}
+    private PlayerManager() {
+        Sledgehammer.addListener(this);
+    }
 
     /**
      * Creates a new SledgehammerPlayer and sets attributes from storage upon player joining
-     * @param player ProxiedPlayer joining the proxy
+     * @param e {@link PostLoginEvent}
      */
-    public void onPlayerJoin(ProxiedPlayer player) {
-        onPlayerDisconnect(player);
-        SledgehammerPlayer newPlayer = new SledgehammerPlayer(player);
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onPlayerJoinEvent(PostLoginEvent e) {
+        onPlayerJoin(e.getPlayer());
+    }
 
-        StorableStringArray storableStringArray = attributes.get(player.getUniqueId().toString());
-        try {
-            if(storableStringArray != null) newPlayer.setAttributes(new ArrayList<>(Arrays.asList(storableStringArray.stringArray)));
-        } catch (NullPointerException e) {
-            newPlayer.setAttributes(new ArrayList<>());
+    /**
+     * Creates a new SledgehammerPlayer and sets attributes from storage upon player joining
+     * @param p {@link ProxiedPlayer}
+     */
+    private SledgehammerPlayer onPlayerJoin(ProxiedPlayer p) {
+        players.removeIf(player -> player.getUniqueId().equals(p.getUniqueId()));
+        SledgehammerPlayer newPlayer = new SledgehammerPlayer(p);
+
+        Attribute attribute = null;
+        for(Attribute a : attributes)
+            if(a.getUuid().equals(p.getUniqueId())) attribute = a;
+
+        if(attribute != null) {
+            newPlayer.setAttributes(attribute.getAttributes());
         }
 
         players.add(newPlayer);
+        return newPlayer;
     }
 
     /**
      * Removes the SledgehammerPlayer and saves the attributes to storage upon player leaving
-     * @param player ProxiedPlayer leaving the proxy
+     * @param e {@link PlayerDisconnectEvent}
      */
-    public void onPlayerDisconnect(ProxiedPlayer player) {
-        List<SledgehammerPlayer> remove = new ArrayList<>();
-        for(SledgehammerPlayer p : players) {
-            if(p.getName().equalsIgnoreCase(player.getName())) {
-                remove.add(p);
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onPlayerDisconnectEvent(PlayerDisconnectEvent e) {
+        onPlayerDisconnect(e.getPlayer());
+    }
+
+    /**
+     * Removes the SledgehammerPlayer and saves the attributes to storage upon player leaving
+     * @param player {@link ProxiedPlayer}
+     */
+    private void onPlayerDisconnect(ProxiedPlayer player) {
+        SledgehammerPlayer p = null;
+        for(SledgehammerPlayer pl : players)
+            if(player.getUniqueId().equals(pl.getUniqueId())) p = pl;
+
+        if(p == null) return;
+
+        Attribute attribute = null;
+        for(Attribute a : attributes)
+            if(a.getUuid().equals(player.getUniqueId())) attribute = a;
+
+        if(attribute == null) {
+            if(!p.getAttributes().isEmpty()) {
+                attributes.add(new Attribute(p.getUniqueId(), p.getAttributes()));
+            }
+        } else {
+            if(p.getAttributes().isEmpty()) {
+                attributes.remove(attribute);
             }
         }
 
-        if(!remove.isEmpty()) {
-            SledgehammerPlayer p = remove.get(0);
-            List<String> playerAttributes = p.getAttributes();
+        attributes.save(true);
 
-            Set<String> set = Sets.newHashSet();
-            set.add(p.getUniqueId().toString());
-            attributes.keySet().removeAll(set);
-            attributes.put(p.getUniqueId().toString(), new StorableStringArray(playerAttributes.toArray(new String[playerAttributes.size()])));
-            attributes.save(true);
-        }
-
-        for(SledgehammerPlayer pl : remove) {
-            players.remove(pl);
-        }
+        players.removeIf(player1 -> player1.getUniqueId().equals(player.getUniqueId()));
     }
 
     /**
@@ -106,6 +137,10 @@ public class PlayerManager {
             }
         }
 
+        for(ProxiedPlayer p : ProxyServer.getInstance().getPlayers())
+            if(p.getName().equalsIgnoreCase(s))
+                return onPlayerJoin(p);
+
         return null;
     }
 
@@ -115,14 +150,7 @@ public class PlayerManager {
      * @return {@link SledgehammerPlayer}
      */
     public SledgehammerPlayer getPlayer(CommandSender s) {
-        for(SledgehammerPlayer p : players) {
-            if(p.getName().equalsIgnoreCase(s.getName())) {
-                p.update();
-                return p;
-            }
-        }
-
-        return null;
+        return getPlayer(s.getName());
     }
 
     /**
@@ -130,7 +158,7 @@ public class PlayerManager {
      * Use {@link SledgehammerPlayer#getAttributes()} to get attributes
      * @return Hash map of attributes
      */
-    public StorageHashMap<String, StorableStringArray> getAttributes() {
+    public StorageList<Attribute> getAttributes() {
         return attributes;
     }
 }

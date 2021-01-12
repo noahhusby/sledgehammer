@@ -1,5 +1,11 @@
 package com.noahhusby.sledgehammer.addons.terramap.network;
 
+/**
+ * Thrown when failing to encode a packet
+ * 
+ * @author SmylerMC
+ *
+ */
 public class PacketEncodingException extends Exception {
 
 	public PacketEncodingException(String string) {

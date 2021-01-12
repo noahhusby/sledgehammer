@@ -37,8 +37,14 @@ public class S2PSetwarpPacket extends S2PPacket {
     @Override
     public void onMessage(PacketInfo info, SmartObject data) {
         SmartObject point = SmartObject.fromJSON((JSONObject) data.get("point"));
-        DecimalFormat format = new DecimalFormat("0.000");
-        WarpHandler.getInstance().incomingLocationResponse(info.getSender(), new Point(format.format(point.getString("x")), format.format(point.getString("y")),
-                format.format(point.getString("z")), format.format(point.getString("yaw")), format.format(point.getString("pitch"))));
+        DecimalFormat format = new DecimalFormat("###.###");
+
+        String x = format.format(Double.parseDouble(point.getString("x")));
+        String y = format.format(Double.parseDouble(point.getString("y")));
+        String z = format.format(Double.parseDouble(point.getString("z")));
+        String yaw = format.format(Double.parseDouble(point.getString("yaw")));
+        String pitch = format.format(Double.parseDouble(point.getString("pitch")));
+
+        WarpHandler.getInstance().incomingLocationResponse(info.getSender(), new Point(x, y, z, yaw, pitch));
     }
 }

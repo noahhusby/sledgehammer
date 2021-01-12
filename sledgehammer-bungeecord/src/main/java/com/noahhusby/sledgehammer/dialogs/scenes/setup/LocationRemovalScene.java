@@ -52,7 +52,7 @@ public class LocationRemovalScene extends DialogScene {
     public void onFinish() {
         List<Location> locations = ServerConfig.getInstance().getLocationsFromServer(server.getName());
         List<Location> newLocations = ServerConfig.getInstance().getLocationsFromServer(server.getName());
-        Location l = locations.get(Integer.parseInt(getValue("locationremove")));
+        Location l = locations.get(Integer.parseInt(getValue("locationremove").trim()));
         newLocations.remove(l);
 
         SledgehammerServer s = ServerConfig.getInstance().getServer(server.getName());

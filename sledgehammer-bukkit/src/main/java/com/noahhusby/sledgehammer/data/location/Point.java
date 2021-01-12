@@ -18,7 +18,6 @@
 
 package com.noahhusby.sledgehammer.data.location;
 
-import com.google.gson.annotations.Expose;
 import org.json.simple.JSONObject;
 
 public class Point {

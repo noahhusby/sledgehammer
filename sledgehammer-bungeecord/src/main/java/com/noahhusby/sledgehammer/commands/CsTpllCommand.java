@@ -43,7 +43,6 @@ public class CsTpllCommand extends Command {
             getNetworkManager().send(new P2SCommandPacket(sender.getName(), SledgehammerUtil.getServerFromSender(sender).getName(), "cs"));
             return;
         } else if (!args[0].equals("tpll")) {
-
             getNetworkManager().send(new P2SCommandPacket(sender.getName(), SledgehammerUtil.getServerFromSender(sender).getName(), "cs",
                     SledgehammerUtil.getRawArguments(args)));
             return;
@@ -51,7 +50,6 @@ public class CsTpllCommand extends Command {
 
         ArrayList<String> dataList = new ArrayList<>();
         for(int x = 1; x < args.length; x++) dataList.add(args[x]);
-
         String[] data = dataList.toArray(new String[dataList.size()]);
 
         new TpllCommand().execute(sender, data);

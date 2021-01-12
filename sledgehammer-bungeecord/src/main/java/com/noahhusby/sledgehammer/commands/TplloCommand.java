@@ -23,6 +23,9 @@ import com.noahhusby.sledgehammer.chat.ChatHelper;
 import com.noahhusby.sledgehammer.chat.TextElement;
 import com.noahhusby.sledgehammer.commands.data.Command;
 import com.noahhusby.sledgehammer.network.P2S.P2SLocationPacket;
+import com.noahhusby.sledgehammer.permissions.PermissionHandler;
+import com.noahhusby.sledgehammer.permissions.PermissionRequest;
+import com.noahhusby.sledgehammer.players.SledgehammerPlayer;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.config.ServerInfo;
@@ -35,55 +38,61 @@ public class TplloCommand extends Command {
     }
 
     @Override
-    public void execute(CommandSender sender, String[] args) {
+    public void execute(CommandSender sender, String[] a) {
         if(!(sender instanceof ProxiedPlayer)) {
             sender.sendMessage(ChatConstants.issueByPlayer);
             return;
         }
 
-        if(!isAdmin(sender)) {
+        if(!isAllowed(sender)) {
+            sender.sendMessage(ChatConstants.getNotAvailable());
+            return;
+        }
+
+        PermissionHandler.getInstance().check(SledgehammerPlayer.getPlayer(sender), "sledgehammer.tpllo", (code, global) -> {
+            if(code == PermissionRequest.PermissionCode.PERMISSION) {
+                String[] args = a;
+                if(args.length==0) {
+                    sender.sendMessage(ChatHelper.makeTitleTextComponent(new TextElement("Usage: /tpllo <lat> <lon>", ChatColor.RED)));
+                    return;
+                }
+
+                String[] splitCoords = args[0].split(",");
+                if(splitCoords.length==2&&args.length<3) { // lat and long in single arg
+                    args = splitCoords;
+                }
+
+                if(args[0].endsWith(","))
+                    args[0] = args[0].substring(0, args[0].length() - 1);
+                if(args.length>1&&args[1].endsWith(","))
+                    args[1] = args[1].substring(0, args[1].length() - 1);
+                if(args.length!=2&&args.length!=3) {
+                    sender.sendMessage(ChatHelper.makeTitleTextComponent(new TextElement("Usage: /tpllo <lat> <lon>", ChatColor.RED)));
+                    return;
+                }
+
+                double lon;
+                double lat;
+
+                try {
+                    lat = Double.parseDouble(args[0]);
+                    lon = Double.parseDouble(args[1]);
+                } catch(Exception e) {
+                    sender.sendMessage(ChatHelper.makeTitleTextComponent(new TextElement("Usage: /tpllo <lat> <lon>", ChatColor.RED)));
+                    return;
+                }
+
+                ServerInfo server = ((ProxiedPlayer) sender).getServer().getInfo();
+
+                sender.sendMessage(ChatHelper.makeTitleTextComponent(new TextElement("(Override) Teleporting to ", ChatColor.GRAY),
+                        new TextElement(lat+", "+lon, ChatColor.RED)));
+
+                double[] geo = {lat, lon};
+
+                getNetworkManager().send(new P2SLocationPacket(sender.getName(), server.getName(), geo));
+                return;
+            }
             sender.sendMessage(ChatConstants.noPermission);
-            return;
-        }
-
-        if(args.length==0) {
-            sender.sendMessage(ChatHelper.makeTitleTextComponent(new TextElement("Usage: /tpllo <lat> <lon>", ChatColor.RED)));
-            return;
-        }
-
-        String[] splitCoords = args[0].split(",");
-        String alt = null;
-        if(splitCoords.length==2&&args.length<3) { // lat and long in single arg
-            if(args.length>1) alt = args[1];
-            args = splitCoords;
-        } else if(args.length==3) {
-            alt = args[2];
-        }
-        if(args[0].endsWith(","))
-            args[0] = args[0].substring(0, args[0].length() - 1);
-        if(args.length>1&&args[1].endsWith(","))
-            args[1] = args[1].substring(0, args[1].length() - 1);
-        if(args.length!=2&&args.length!=3) {
-            sender.sendMessage(ChatHelper.makeTitleTextComponent(new TextElement("Usage: /tpllo <lat> <lon>", ChatColor.RED)));
-            return;
-        }
-
-        double lon;
-        double lat;
-
-        try {
-            lat = Double.parseDouble(args[0]);
-            lon = Double.parseDouble(args[1]);
-        } catch(Exception e) {
-            sender.sendMessage(ChatHelper.makeTitleTextComponent(new TextElement("Usage: /tpllo <lat> <lon>", ChatColor.RED)));
-            return;
-        }
-
-        ServerInfo server = ((ProxiedPlayer) sender).getServer().getInfo();
-
-        sender.sendMessage(ChatHelper.makeTitleTextComponent(new TextElement("(Override) Teleporting to ", ChatColor.GRAY),
-                new TextElement(lat+", "+lon, ChatColor.RED)));
-
-        getNetworkManager().send(new P2SLocationPacket(sender.getName(), server.getName(), String.valueOf(lat), String.valueOf(lon)));
+        });
     }
 }

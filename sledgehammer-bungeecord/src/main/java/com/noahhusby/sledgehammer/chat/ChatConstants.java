@@ -17,6 +17,7 @@
  */
 package com.noahhusby.sledgehammer.chat;
 
+import com.noahhusby.sledgehammer.config.ConfigHandler;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.TextComponent;
 
@@ -30,10 +31,15 @@ public class ChatConstants {
     public static final TextComponent notEarthServer = ChatHelper.makeAdminTextComponent(new TextElement("This server is not configured as an earth server! Please use", ChatColor.GRAY),
             new TextElement(" /sha server <server name> setearth true ", ChatColor.BLUE), new TextElement("to enable it.", ChatColor.GRAY));
 
-
     public static TextComponent getValueMessage(String key, String value, String where) {
         return ChatHelper.makeAdminTextComponent(new TextElement("Set value", ChatColor.GRAY),
                 new TextElement(" " + key + " ", ChatColor.GOLD), new TextElement("to ", ChatColor.GRAY), new TextElement(value, ChatColor.RED),
                 new TextElement(" on ", ChatColor.GRAY), new TextElement(where, ChatColor.GOLD));
+    }
+
+    public static TextComponent getNotAvailable() {
+        return ChatHelper.makeTextComponent(ConfigHandler.replaceNotAvailable ?
+                new TextElement("Unknown command. Type \"/help\" for help.", ChatColor.WHITE) :
+                new TextElement("That command is not available.", ChatColor.RED));
     }
 }

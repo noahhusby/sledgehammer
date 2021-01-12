@@ -18,14 +18,19 @@
 
 package com.noahhusby.sledgehammer.datasets;
 
-import com.noahhusby.lib.data.storage.Storable;
+import com.google.gson.annotations.Expose;
 import org.json.simple.JSONObject;
 
-public class Point implements Storable {
+public class Point {
+    @Expose
     public final String x;
+    @Expose
     public final String y;
+    @Expose
     public final String z;
+    @Expose
     public final String yaw;
+    @Expose
     public final String pitch;
 
     public Point() {
@@ -50,15 +55,5 @@ public class Point implements Storable {
         o.put("yaw", yaw);
 
         return o;
-    }
-
-    @Override
-    public Storable load(JSONObject data) {
-        return new Point((String) data.get("x"), (String) data.get("y"), (String) data.get("z"), (String) data.get("yaw"), (String) data.get("pitch"));
-    }
-
-    @Override
-    public JSONObject save(JSONObject data) {
-        return getJSON();
     }
 }

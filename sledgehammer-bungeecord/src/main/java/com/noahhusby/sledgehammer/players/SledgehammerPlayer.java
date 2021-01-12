@@ -18,6 +18,10 @@
 
 package com.noahhusby.sledgehammer.players;
 
+
+import com.google.common.collect.Maps;
+import com.noahhusby.sledgehammer.addons.terramap.TerramapAddon;
+import com.noahhusby.sledgehammer.addons.terramap.TerramapVersion;
 import com.noahhusby.sledgehammer.SledgehammerUtil;
 import com.noahhusby.sledgehammer.config.ServerConfig;
 import com.noahhusby.sledgehammer.config.SledgehammerServer;
@@ -48,7 +52,7 @@ public class SledgehammerPlayer implements ProxiedPlayer {
     private GameMode gameMode = GameMode.NONE;
     private Point location;
     private Point track;
-    List<String> attributes = new ArrayList<>();
+    Map<String, Object> attributes = Maps.newHashMap();
 
     public SledgehammerPlayer(ProxiedPlayer player) {
         this.player = player;
@@ -319,9 +323,30 @@ public class SledgehammerPlayer implements ProxiedPlayer {
      * @return True if on a build server, false if not
      */
     public boolean onEarthServer() {
-        SledgehammerServer server = ServerConfig.getInstance().getServer(getServer().getInfo().getName());
+    	Server playerServer = getServer();
+    	if(playerServer == null) return false;
+        SledgehammerServer server = ServerConfig.getInstance().getServer(playerServer.getInfo().getName());
         if(server == null) return false;
         return server.isEarthServer();
+    }
+
+    /**
+     * Gets {@link SledgehammerServer} from player
+     * @return {@link SledgehammerServer}
+     */
+    public SledgehammerServer getSledgehammerServer() {
+        return ServerConfig.getInstance().getServer(getServer().getInfo().getName());
+    }
+    
+    /**
+     * @author SmylerMC
+     * Do not block features depending on the result of this method, just test if the user has Forge instead.
+     * This will only work if the user has logged onto a Forge server at least once, and will return false otherwise.
+     * 
+     * @return whether or not this player has a compatible version of Terramap installed
+     */
+    public boolean hasCompatibleTerramap() {
+    	return TerramapAddon.MINIMUM_COMPATIBLE_VERSION.isOlderOrSame(TerramapVersion.getClientVersion(this));
     }
 
     /**
@@ -337,6 +362,12 @@ public class SledgehammerPlayer implements ProxiedPlayer {
      * @param p Location of player
      */
     public void setLocation(Point p) {
+        if(getSledgehammerServer() != null) {
+            if(getSledgehammerServer().isStealthMode()) {
+                this.location = null;
+                return;
+            }
+        }
         this.location = p;
     }
 
@@ -389,20 +420,31 @@ public class SledgehammerPlayer implements ProxiedPlayer {
     }
 
     /**
-     * Get the list of player attributes
-     * @return List of attributes
+     * Get the map of player attributes
+     * @return Map of attributes
      */
-    public List<String> getAttributes() {
+    public Map<String, Object> getAttributes() {
         return attributes;
     }
 
     /**
-     * Set the list of attributes
-     * Only use this to set the entire list. To add, check, or remove an item, use {@link #getAttributes().add()}
-     * @param attributes The new list of attributes
+     * Set the map of attributes
+     * Only use this to set the entire map. To add, check, or remove an item, use {@link #getAttributes().put()}
+     * @param attributes The new map of attributes
      */
-    public void setAttributes(List<String> attributes) {
+    public void setAttributes(Map<String, Object> attributes) {
         this.attributes = attributes;
+    }
+
+    /**
+     * Gets whether a specific attribute exists
+     * @param key Attribute Key
+     * @param object Attribute Value
+     * @return True if the attribute exists and matches, false if the attribute doesn't exist or doesn't match
+     */
+    public boolean checkAttribute(String key, Object object) {
+        if(attributes.get(key) == null) return false;
+        return attributes.get(key).equals(object);
     }
 
     /**

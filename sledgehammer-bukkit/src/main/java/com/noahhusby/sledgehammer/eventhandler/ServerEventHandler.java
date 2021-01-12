@@ -18,7 +18,7 @@
 
 package com.noahhusby.sledgehammer.eventhandler;
 
-import com.noahhusby.sledgehammer.gui.GUIRegistry;
+import com.noahhusby.sledgehammer.gui.inventories.general.GUIRegistry;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;

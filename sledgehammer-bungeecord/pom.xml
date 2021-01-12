@@ -6,7 +6,7 @@
 
     <groupId>com.noahhusby</groupId>
     <artifactId>sledgehammer</artifactId>
-    <version>0.4.0-bungeecord</version>
+    <version>0.4.3-bungeecord</version>
     <repositories>
         <repository>
             <id>bungeecord-repo</id>
@@ -56,6 +56,7 @@
             <type>jar</type>
             <scope>provided</scope>
         </dependency>
+
         <dependency>
             <groupId>net.md-5</groupId>
             <artifactId>bungeecord-api</artifactId>
@@ -63,32 +64,44 @@
             <type>javadoc</type>
             <scope>provided</scope>
         </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-simple -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
             <version>1.7.25</version>
             <scope>provided</scope>
         </dependency>
+
+        <!-- https://mvnrepository.com/artifact/com.googlecode.json-simple/json-simple -->
         <dependency>
             <groupId>com.googlecode.json-simple</groupId>
             <artifactId>json-simple</artifactId>
             <version>1.1.1</version>
         </dependency>
-        <dependency>
-            <groupId>org.yaml</groupId>
-            <artifactId>snakeyaml</artifactId>
-            <version>1.26</version>
-        </dependency>
+
+
+        <!-- https://mvnrepository.com/artifact/commons-io/commons-io -->
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
             <version>2.7</version>
         </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.11</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.glassfish.tyrus.bundles/tyrus-standalone-client -->
         <dependency>
             <groupId>org.glassfish.tyrus.bundles</groupId>
             <artifactId>tyrus-standalone-client</artifactId>
             <version>2.0.0-M3</version>
         </dependency>
+
         <dependency>
             <groupId>com.noahhusby</groupId>
             <artifactId>HusbyLib</artifactId>
@@ -96,6 +109,4 @@
             <scope>compile</scope>
         </dependency>
     </dependencies>
-
-
 </project>

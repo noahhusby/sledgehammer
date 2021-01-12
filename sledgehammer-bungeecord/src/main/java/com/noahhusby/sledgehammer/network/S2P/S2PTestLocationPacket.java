@@ -31,6 +31,10 @@ import com.noahhusby.sledgehammer.chat.TextElement;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.json.simple.JSONObject;
 
 public class S2PTestLocationPacket extends S2PPacket {
@@ -60,34 +64,115 @@ public class S2PTestLocationPacket extends S2PPacket {
                     new TextElement(" (Zoom: " + zoom + ")", ChatColor.GRAY)));
             player.sendMessage(ChatHelper.makeTextComponent(new TextElement("Online: ", ChatColor.RED)));
             if (!online.city.equals("")) {
-                player.sendMessage(ChatHelper.makeTextComponent(new TextElement("City - ", ChatColor.GRAY), new TextElement(online.city, ChatColor.BLUE)));
+                TextComponent add = new TextComponent(ChatColor.GREEN + " [+]");
+                add.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("Add location").create()));
+                add.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/sha server " +
+                        info.getServer() + " addlocation " +
+                        SledgehammerUtil.JsonUtils.gson.toJson(new Location(Location.detail.city,
+                                online.city, online.county, online.state, online.country))));
+
+                TextComponent text = ChatHelper.makeTextComponent(new TextElement("City - ", ChatColor.GRAY), new TextElement(online.city, ChatColor.BLUE));
+                text.addExtra(add);
+
+                player.sendMessage(text);
             }
             if (!online.county.equals("")) {
-                player.sendMessage(ChatHelper.makeTextComponent(new TextElement("County - ", ChatColor.GRAY), new TextElement(online.county, ChatColor.BLUE)));
+                TextComponent add = new TextComponent(ChatColor.GREEN + " [+]");
+                add.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("Add location").create()));
+                add.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/sha server " +
+                        info.getServer() + " addlocation " +
+                        SledgehammerUtil.JsonUtils.gson.toJson(new Location(Location.detail.county,
+                                online.city, online.county, online.state, online.country))));
+
+                TextComponent text = ChatHelper.makeTextComponent(new TextElement("County - ", ChatColor.GRAY), new TextElement(online.county, ChatColor.BLUE));
+                text.addExtra(add);
+
+                player.sendMessage(text);
             }
             if (!online.state.equals("")) {
-                player.sendMessage(ChatHelper.makeTextComponent(new TextElement("State - ", ChatColor.GRAY), new TextElement(online.state, ChatColor.BLUE)));
+                TextComponent add = new TextComponent(ChatColor.GREEN + " [+]");
+                add.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("Add location").create()));
+                add.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/sha server " +
+                        info.getServer() + " addlocation " +
+                        SledgehammerUtil.JsonUtils.gson.toJson(new Location(Location.detail.state,
+                                online.city, online.county, online.state, online.country))));
+
+                TextComponent text = ChatHelper.makeTextComponent(new TextElement("State - ", ChatColor.GRAY), new TextElement(online.state, ChatColor.BLUE));
+                text.addExtra(add);
+
+                player.sendMessage(text);
             }
             if (!online.country.equals("")) {
-                player.sendMessage(ChatHelper.makeTextComponent(new TextElement("Country - ", ChatColor.GRAY), new TextElement(online.country, ChatColor.BLUE)));
+                TextComponent add = new TextComponent(ChatColor.GREEN + " [+]");
+                add.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("Add location").create()));
+                add.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/sha server " +
+                        info.getServer() + " addlocation " +
+                        SledgehammerUtil.JsonUtils.gson.toJson(new Location(Location.detail.country,
+                                online.city, online.county, online.state, online.country))));
+
+                TextComponent text = ChatHelper.makeTextComponent(new TextElement("Country - ", ChatColor.GRAY), new TextElement(online.country, ChatColor.BLUE));
+                text.addExtra(add);
+
+                player.sendMessage(text);
             }
             if (!ConfigHandler.useOfflineMode) {
                 player.sendMessage(ChatHelper.makeTextComponent(
                         new TextElement("Offline: ", ChatColor.RED), new TextElement("Disabled", ChatColor.DARK_RED)));
             } else {
                 Location offline = OpenStreetMaps.getInstance().getOfflineLocation(proj[0], proj[1]);
-                player.sendMessage(ChatHelper.makeTextComponent(new TextElement("Offline: ", ChatColor.RED)));
+                player.sendMessage(ChatHelper.makeTextComponent(new TextElement("Offline ", ChatColor.RED), new TextElement("(", ChatColor.GRAY),
+                        new TextElement("Active", ChatColor.GREEN), new TextElement("):", ChatColor.GRAY)));
                 if (!offline.city.equals("")) {
-                    player.sendMessage(ChatHelper.makeTextComponent(new TextElement("City - ", ChatColor.GRAY), new TextElement(offline.city, ChatColor.BLUE)));
+                    TextComponent add = new TextComponent(ChatColor.GREEN + " [+]");
+                    add.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("Add location").create()));
+                    add.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/sha server " +
+                            info.getServer() + " addlocation " +
+                            SledgehammerUtil.JsonUtils.gson.toJson(new Location(Location.detail.city,
+                                    offline.city, offline.county, offline.state, offline.country))));
+
+                    TextComponent text = ChatHelper.makeTextComponent(new TextElement("City - ", ChatColor.GRAY), new TextElement(offline.city, ChatColor.BLUE));
+                    text.addExtra(add);
+
+                    player.sendMessage(text);
                 }
                 if (!offline.county.equals("")) {
-                    player.sendMessage(ChatHelper.makeTextComponent(new TextElement("County - ", ChatColor.GRAY), new TextElement(offline.county, ChatColor.BLUE)));
+                    TextComponent add = new TextComponent(ChatColor.GREEN + " [+]");
+                    add.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("Add location").create()));
+                    add.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/sha server " +
+                            info.getServer() + " addlocation " +
+                            SledgehammerUtil.JsonUtils.gson.toJson(new Location(Location.detail.county,
+                                    offline.city, offline.county, offline.state, offline.country))));
+
+                    TextComponent text = ChatHelper.makeTextComponent(new TextElement("County - ", ChatColor.GRAY), new TextElement(offline.county, ChatColor.BLUE));
+                    text.addExtra(add);
+
+                    player.sendMessage(text);
                 }
                 if (!offline.state.equals("")) {
-                    player.sendMessage(ChatHelper.makeTextComponent(new TextElement("State - ", ChatColor.GRAY), new TextElement(offline.state, ChatColor.BLUE)));
+                    TextComponent add = new TextComponent(ChatColor.GREEN + " [+]");
+                    add.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("Add location").create()));
+                    add.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/sha server " +
+                            info.getServer() + " addlocation " +
+                            SledgehammerUtil.JsonUtils.gson.toJson(new Location(Location.detail.state,
+                                    offline.city, offline.county, offline.state, offline.country))));
+
+                    TextComponent text = ChatHelper.makeTextComponent(new TextElement("State - ", ChatColor.GRAY), new TextElement(offline.state, ChatColor.BLUE));
+                    text.addExtra(add);
+
+                    player.sendMessage(text);
                 }
                 if (!offline.country.equals("")) {
-                    player.sendMessage(ChatHelper.makeTextComponent(new TextElement("Country - ", ChatColor.GRAY), new TextElement(offline.country, ChatColor.BLUE)));
+                    TextComponent add = new TextComponent(ChatColor.GREEN + " [+]");
+                    add.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("Add location").create()));
+                    add.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/sha server " +
+                            info.getServer() + " addlocation " +
+                            SledgehammerUtil.JsonUtils.gson.toJson(new Location(Location.detail.country,
+                                    offline.city, offline.county, offline.state, offline.country))));
+
+                    TextComponent text = ChatHelper.makeTextComponent(new TextElement("Country - ", ChatColor.GRAY), new TextElement(offline.country, ChatColor.BLUE));
+                    text.addExtra(add);
+
+                    player.sendMessage(text);
                 }
             }
 

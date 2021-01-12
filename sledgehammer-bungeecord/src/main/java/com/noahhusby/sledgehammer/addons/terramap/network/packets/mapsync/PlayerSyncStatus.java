@@ -1,5 +1,11 @@
 package com.noahhusby.sledgehammer.addons.terramap.network.packets.mapsync;
 
+/**
+ * Indicates how a Terramap server or proxy supports player synchronization.
+ * 
+ * @author SmylerMC
+ *
+ */
 public enum PlayerSyncStatus {
 		
 		ENABLED((byte) 0x01),

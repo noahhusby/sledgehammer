@@ -117,7 +117,8 @@ public class MapHandler {
 
                 for(MapSession session : sessions) {
                     if(session.name.equalsIgnoreCase(uuid) && key.equalsIgnoreCase(session.key.toString())) {
-                        Warp warp = WarpHandler.getInstance().getWarp(warpName);
+                        //Warp warp = WarpHandler.getInstance().getWarp(warpName);
+                        Warp warp = new Warp();
                         SledgehammerPlayer player = SledgehammerPlayer.getPlayer(session.name);
                         if(player == null) return;
 
@@ -126,13 +127,13 @@ public class MapHandler {
                             return;
                         }
 
-                        if(player.getServer().getInfo() != ProxyServer.getInstance().getServerInfo(warp.server)) {
-                            player.connect(ProxyServer.getInstance().getServerInfo(warp.server));
-                            player.sendMessage(ChatHelper.makeTitleTextComponent(new TextElement("Sending you to ", ChatColor.GRAY), new TextElement(warp.server, ChatColor.RED)));
+                        if(player.getServer().getInfo() != ProxyServer.getInstance().getServerInfo(warp.getServer())) {
+                            player.connect(ProxyServer.getInstance().getServerInfo(warp.getServer()));
+                            player.sendMessage(ChatHelper.makeTitleTextComponent(new TextElement("Sending you to ", ChatColor.GRAY), new TextElement(warp.getServer(), ChatColor.RED)));
                         }
 
                         player.sendMessage(ChatHelper.makeTitleTextComponent(new TextElement("Warping to ", ChatColor.GRAY), new TextElement(warpName, ChatColor.RED)));
-                        SledgehammerNetworkManager.getInstance().send(new P2STeleportPacket(session.name, warp.server, warp.point));
+                        SledgehammerNetworkManager.getInstance().send(new P2STeleportPacket(session.name, warp.getServer(), warp.getPoint()));
 
                     }
                 }
@@ -186,10 +187,10 @@ public class MapHandler {
         for(Warp w : WarpHandler.getInstance().getWarps()) {
             JSONObject waypoint = new JSONObject();
 
-            waypoint.put("name", ChatHelper.capitalize(w.name));
+            waypoint.put("name", ChatHelper.capitalize(w.getName()));
             waypoint.put("info", "");
 
-            double[] proj = SledgehammerUtil.toGeo(Double.parseDouble(w.point.x), Double.parseDouble(w.point.z));
+            double[] proj = SledgehammerUtil.toGeo(Double.parseDouble(w.getPoint().x), Double.parseDouble(w.getPoint().z));
 
             waypoint.put("lon", proj[0]);
             waypoint.put("lat", proj[1]);

@@ -31,6 +31,7 @@ import net.md_5.bungee.api.event.ChatEvent;
 import net.md_5.bungee.api.event.PlayerDisconnectEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
+import net.md_5.bungee.event.EventPriority;
 
 import java.util.Map;
 
@@ -43,7 +44,7 @@ public class DialogHandler implements Listener {
     }
 
     private DialogHandler() {
-        Sledgehammer.setupListener(this);
+        Sledgehammer.addListener(this);
     }
 
     private final Map<CommandSender, IDialogScene> activeScenes = Maps.newHashMap();
@@ -104,12 +105,12 @@ public class DialogHandler implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onChatEvent(ChatEvent e) {
         for(Map.Entry<CommandSender, IDialogScene> l : activeScenes.entrySet()) {
             ProxiedPlayer p = ProxyServer.getInstance().getPlayer(l.getKey().getName());
             if(p != null) {
-                if(p.equals(e.getSender()) || p.equals(e.getSender())) {
+                if(p.equals(e.getSender())) {
                     e.setCancelled(true);
                     l.getValue().onMessage(e.getMessage());
                 }
@@ -117,7 +118,7 @@ public class DialogHandler implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerLeave(PlayerDisconnectEvent e) {
         for(CommandSender c : activeScenes.keySet()) {
             if(c.getName().equals(e.getPlayer().getName())) {

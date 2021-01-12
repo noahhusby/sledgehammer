@@ -20,8 +20,11 @@ package com.noahhusby.sledgehammer.network.P2S;
 
 import com.noahhusby.sledgehammer.Constants;
 import com.noahhusby.sledgehammer.SmartObject;
-import com.noahhusby.sledgehammer.gui.GUIRegistry;
-import com.noahhusby.sledgehammer.gui.inventories.WarpInventoryController;
+import com.noahhusby.sledgehammer.data.warp.WarpPayload;
+import com.noahhusby.sledgehammer.gui.inventories.general.GUIRegistry;
+import com.noahhusby.sledgehammer.gui.inventories.warp.GroupWarpInventoryController;
+import com.noahhusby.sledgehammer.gui.inventories.warp.PinnedWarpInventoryController;
+import com.noahhusby.sledgehammer.gui.inventories.warp.AllWarpInventoryController;
 import com.noahhusby.sledgehammer.network.P2SPacket;
 import com.noahhusby.sledgehammer.network.PacketInfo;
 import org.bukkit.Bukkit;
@@ -46,6 +49,20 @@ public class P2SWarpGUIPacket extends P2SPacket {
             return;
         }
 
-        GUIRegistry.register(new WarpInventoryController(p, data));
+        WarpPayload payload = WarpPayload.fromPayload(data);
+        if(payload.getGroups().isEmpty()) payload.setDefaultPage("pinned");
+
+        switch (payload.getDefaultPage()) {
+            default:
+            case "group":
+                GUIRegistry.register(new GroupWarpInventoryController(p, payload, payload.getRequestGroup()));
+                break;
+            case "all":
+                GUIRegistry.register(new AllWarpInventoryController(p, payload));
+                break;
+            case "pinned":
+                GUIRegistry.register(new PinnedWarpInventoryController(p, payload));
+                break;
+        }
     }
 }

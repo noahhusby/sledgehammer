@@ -18,22 +18,38 @@
 
 package com.noahhusby.sledgehammer.config;
 
-import com.noahhusby.lib.data.storage.Storable;
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 import com.noahhusby.sledgehammer.datasets.Location;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-public class SledgehammerServer implements Storable {
+public class SledgehammerServer {
+    @Expose
+    @SerializedName("Name")
     private String name;
+    @Expose
+    @SerializedName("Nick")
     private String friendlyName;
+    @Expose
+    @SerializedName("EarthServer")
     private boolean earthServer;
-
+    @Expose
+    @SerializedName("Locations")
     private List<Location> locations = new ArrayList<>();
+    @Expose
+    @SerializedName("XOffset")
+    private int xOffset;
+    @Expose
+    @SerializedName("ZOffset")
+    private int zOffset;
+    @Expose
+    @SerializedName("StealthMode")
+    private boolean stealthMode;
     private String shVersion = null;
 
     public SledgehammerServer() {}
@@ -100,6 +116,38 @@ public class SledgehammerServer implements Storable {
     }
 
     /**
+     * Sets the x offset for tpll requests
+     * @param xOffset
+     */
+    public void setxOffset(int xOffset) {
+        this.xOffset = xOffset;
+    }
+
+    /**
+     * Gets the x offset for tpll requests
+     * @return X Offset
+     */
+    public int getxOffset() {
+        return xOffset;
+    }
+
+    /**
+     * Sets the z offset for tpll requests
+     * @param zOffset
+     */
+    public void setzOffset(int zOffset) {
+        this.zOffset = zOffset;
+    }
+
+    /**
+     * Gets the z offset for tpll requests
+     * @return Z Offset
+     */
+    public int getzOffset() {
+        return zOffset;
+    }
+
+    /**
      * Gets the version of the sledgehammer plugin
      * @return Sledgehammer Version
      */
@@ -131,36 +179,29 @@ public class SledgehammerServer implements Storable {
         return ProxyServer.getInstance().getServerInfo(name);
     }
 
-    @Override
-    public Storable load(JSONObject data) {
-        SledgehammerServer server = new SledgehammerServer((String) data.get("name"));
-        JSONArray storedLocs = (JSONArray) data.get("locations");
-        for(Object o : storedLocs) {
-            JSONObject location = (JSONObject) o;
-            server.locations.add((Location) new Location().load(location));
-        }
-
-        String version = ServerConfig.getInstance().initializedServers.get(data.get("name"));
-        if(version != null) server.shVersion = version;
-
-        server.earthServer = (boolean) data.get("earthServer");
-        if(data.get("friendlyName") != null) server.friendlyName = (String) data.get("friendlyName");
-
-        return server;
+    /**
+     * Gets the group assigned to this server
+     * @return Returns the associated group, or a new group if none exists
+     */
+    public ServerGroup getGroup() {
+        for(ServerGroup g : ServerConfig.getInstance().getGroups())
+            if(g.getServers().contains(name)) return g;
+        return new ServerGroup(name, "", friendlyName, Collections.singletonList(name), new ArrayList<>());
     }
 
-    @Override
-    public JSONObject save(JSONObject data) {
-        data.put("name", name);
-        data.put("earthServer", earthServer);
-        data.put("friendlyName", friendlyName);
+    /**
+     * Gets whether stealth mode is enabled
+     * @return True if enabled, false if disabled
+     */
+    public boolean isStealthMode() {
+        return stealthMode;
+    }
 
-        JSONArray locs = new JSONArray();
-        for(Location l : locations)
-            locs.add(l.save(new JSONObject()));
-
-        data.put("locations", locs);
-
-        return data;
+    /**
+     * Sets whether stealth mode should be enabled
+     * @param stealthMode True if players should be hidden, false if not
+     */
+    public void setStealthMode(boolean stealthMode) {
+        this.stealthMode = stealthMode;
     }
 }

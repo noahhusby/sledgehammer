@@ -19,6 +19,10 @@
 package com.noahhusby.sledgehammer.network.P2S;
 
 import com.noahhusby.sledgehammer.Constants;
+import com.noahhusby.sledgehammer.Sledgehammer;
+import com.noahhusby.sledgehammer.SledgehammerUtil;
+import com.noahhusby.sledgehammer.config.ServerConfig;
+import com.noahhusby.sledgehammer.config.SledgehammerServer;
 import com.noahhusby.sledgehammer.network.P2SPacket;
 import com.noahhusby.sledgehammer.network.PacketInfo;
 import org.json.simple.JSONObject;
@@ -29,12 +33,20 @@ public class P2SLocationPacket extends P2SPacket {
     private final String server;
     private final String lat;
     private final String lon;
+    private String xOffset;
+    private String zOffset;
 
-    public P2SLocationPacket(String sender, String server, String lat, String lon) {
+    public P2SLocationPacket(String sender, String server, double[] geo) {
         this.server = server;
         this.sender = sender;
-        this.lat = lat;
-        this.lon = lon;
+        SledgehammerServer sledgehammerServer = ServerConfig.getInstance().getServer(server);
+        if(sledgehammerServer != null) {
+            xOffset = String.valueOf(sledgehammerServer.getxOffset());
+            zOffset = String.valueOf(sledgehammerServer.getzOffset());
+        }
+
+        this.lat = String.valueOf(geo[0]);
+        this.lon = String.valueOf(geo[1]);
     }
     @Override
     public String getPacketID() {
@@ -45,6 +57,8 @@ public class P2SLocationPacket extends P2SPacket {
     public JSONObject getMessage(JSONObject data) {
         data.put("lat", lat);
         data.put("lon", lon);
+        data.put("xOffset", xOffset);
+        data.put("zOffset", zOffset);
         return data;
     }
 

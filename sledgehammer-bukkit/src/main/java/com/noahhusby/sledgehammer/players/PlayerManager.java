@@ -26,6 +26,7 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -44,24 +45,16 @@ public class PlayerManager {
 
     private class PlayerLocationUpdate implements Runnable {
 
-        Map<Player, Location> playerLocations = Maps.newHashMap();
+        Map<UUID, Location> lastLocation = Maps.newHashMap();
 
         @Override
         public void run() {
             for(Player p : Bukkit.getOnlinePlayers()) {
-                if(playerLocations.get(p) == null) {
-                    playerLocations.put(p, p.getLocation());
-                    SledgehammerNetworkManager.getInstance().sendPacket(
-                            new S2PPlayerUpdatePacket(p));
-                    return;
-                }
+                Location last = lastLocation.get(p.getUniqueId());
+                if(last == null || !last.equals(p.getLocation()))
+                    SledgehammerNetworkManager.getInstance().send(new S2PPlayerUpdatePacket(p));
 
-                if(p.getLocation().equals(playerLocations.get(p))) return;
-
-                playerLocations.remove(p);
-                playerLocations.put(p, p.getLocation());
-                SledgehammerNetworkManager.getInstance().sendPacket(
-                        new S2PPlayerUpdatePacket(p));
+                lastLocation.put(p.getUniqueId(), p.getLocation());
             }
         }
     }

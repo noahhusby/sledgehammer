@@ -19,6 +19,8 @@
 package com.noahhusby.sledgehammer.network.P2S;
 
 import com.noahhusby.sledgehammer.Constants;
+import com.noahhusby.sledgehammer.gui.GUIHandler;
+import com.noahhusby.sledgehammer.players.SledgehammerPlayer;
 import com.noahhusby.sledgehammer.warp.WarpHandler;
 import com.noahhusby.sledgehammer.network.P2SPacket;
 import com.noahhusby.sledgehammer.network.PacketInfo;
@@ -28,10 +30,18 @@ public class P2SWarpGUIPacket extends P2SPacket {
 
     private final String server;
     private final String sender;
+    private final boolean editAccess;
+    private String group = null;
 
-    public P2SWarpGUIPacket(String sender, String server) {
+    public P2SWarpGUIPacket(String sender, String server, boolean editAccess) {
         this.server = server;
         this.sender = sender;
+        this.editAccess = editAccess;
+    }
+
+    public P2SWarpGUIPacket(String sender, String server, boolean editAccess, String group) {
+        this(sender, server, editAccess);
+        this.group = group;
     }
 
     @Override
@@ -41,7 +51,14 @@ public class P2SWarpGUIPacket extends P2SPacket {
 
     @Override
     public JSONObject getMessage(JSONObject data) {
-        return WarpHandler.getInstance().generateGUIPayload();
+        JSONObject payload = WarpHandler.getInstance().generateGUIPayload(SledgehammerPlayer.getPlayer(sender), editAccess);
+        if(group != null) {
+            payload.remove("requestGroup");
+            payload.put("requestGroup", group);
+            payload.put("defaultPage", "group");
+        }
+        payload.put("salt", GUIHandler.getInstance().track(SledgehammerPlayer.getPlayer(sender)));
+        return payload;
     }
 
     @Override

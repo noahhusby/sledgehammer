@@ -48,7 +48,7 @@ public class BorderCheckerThread implements Runnable {
                 continue;
             }
 
-            if(p.getAttributes().contains("NO_BORDER")) {
+            if(p.checkAttribute("BORDER_MODE", false)) {
                 p.setTrackingPoint(null);
                 p.setFlagged(false);
                 continue;

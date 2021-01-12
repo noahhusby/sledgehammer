@@ -52,6 +52,10 @@ public class ServerInfoFragment implements ICommandFragment {
             }
             sender.sendMessage(ChatHelper.makeTextComponent(new TextElement("Friendly Name: ", ChatColor.GRAY),
                     new TextElement(server.getFriendlyName(), ChatColor.BLUE)));
+            sender.sendMessage(ChatHelper.makeTextComponent(new TextElement("X Offset: ", ChatColor.GRAY),
+                    new TextElement(String.valueOf(server.getxOffset()), ChatColor.BLUE)));
+            sender.sendMessage(ChatHelper.makeTextComponent(new TextElement("Z Offset: ", ChatColor.GRAY),
+                    new TextElement(String.valueOf(server.getzOffset()), ChatColor.BLUE)));
         } else {
             sender.sendMessage(ChatHelper.makeTextComponent(new TextElement("Status: ", ChatColor.GRAY),
                     new TextElement("Initialized", ChatColor.GREEN)));
@@ -65,6 +69,10 @@ public class ServerInfoFragment implements ICommandFragment {
             }
             sender.sendMessage(ChatHelper.makeTextComponent(new TextElement("Friendly Name: ", ChatColor.GRAY),
                     new TextElement(server.getFriendlyName(), ChatColor.BLUE)));
+            sender.sendMessage(ChatHelper.makeTextComponent(new TextElement("X Offset: ", ChatColor.GRAY),
+                    new TextElement(String.valueOf(server.getxOffset()), ChatColor.BLUE)));
+            sender.sendMessage(ChatHelper.makeTextComponent(new TextElement("Z Offset: ", ChatColor.GRAY),
+                    new TextElement(String.valueOf(server.getzOffset()), ChatColor.BLUE)));
             sender.sendMessage();
             sender.sendMessage(ChatHelper.makeTextComponent(new TextElement("SH Version: ", ChatColor.GRAY),
                     new TextElement(server.getSledgehammerVersion(), ChatColor.BLUE)));

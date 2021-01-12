@@ -33,6 +33,6 @@ public class P2STestLocationPacket extends P2SPacket {
     @Override
     public void onMessage(PacketInfo info, SmartObject data) {
         int zoom = (int) ((long) data.get("zoom"));
-        getManager().sendPacket(new S2PTestLocationPacket(info, zoom));
+        getManager().send(new S2PTestLocationPacket(info, zoom));
     }
 }

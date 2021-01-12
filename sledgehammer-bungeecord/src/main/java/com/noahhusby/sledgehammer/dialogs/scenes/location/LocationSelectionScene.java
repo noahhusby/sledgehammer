@@ -21,6 +21,7 @@ package com.noahhusby.sledgehammer.dialogs.scenes.location;
 import com.noahhusby.sledgehammer.dialogs.components.location.LocationSelectionComponent;
 import com.noahhusby.sledgehammer.dialogs.scenes.DialogScene;
 import com.noahhusby.sledgehammer.dialogs.DialogHandler;
+import com.noahhusby.sledgehammer.network.P2S.P2SWarpGUIPacket;
 import net.md_5.bungee.api.config.ServerInfo;
 
 public class LocationSelectionScene extends DialogScene {
@@ -40,7 +41,7 @@ public class LocationSelectionScene extends DialogScene {
 
     @Override
     public void onFinish() {
-        switch(getValue("locationmode").toLowerCase()) {
+        switch (getValue("locationmode").toLowerCase().trim()) {
             case "city":
                 DialogHandler.getInstance().startDialog(getCommandSender(), new CityScene(server, scene));
                 break;
@@ -55,6 +56,8 @@ public class LocationSelectionScene extends DialogScene {
                 break;
         }
     }
+
+
 
     @Override
     public boolean isAdmin() {

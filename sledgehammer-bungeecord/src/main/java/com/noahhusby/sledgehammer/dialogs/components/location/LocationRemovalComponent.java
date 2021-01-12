@@ -77,7 +77,11 @@ public class LocationRemovalComponent extends DialogComponent {
 
     @Override
     public boolean validateResponse(String v) {
-        int vm = Integer.parseInt(v.toLowerCase().trim());
-        return vm > -1 && vm < locations.size();
+        try {
+            int vm = Integer.parseInt(v.toLowerCase().trim());
+            return vm > -1 && vm < locations.size();
+        } catch (NumberFormatException e) {
+            return false;
+        }
     }
 }

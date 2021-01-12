@@ -32,6 +32,6 @@ public class P2SSetwarpPacket extends P2SPacket {
 
     @Override
     public void onMessage(PacketInfo info, SmartObject data) {
-        getManager().sendPacket(new S2PSetwarpPacket(info));
+        getManager().send(new S2PSetwarpPacket(info));
     }
 }

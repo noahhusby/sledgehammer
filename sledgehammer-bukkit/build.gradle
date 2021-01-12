@@ -6,7 +6,10 @@
 
 import org.apache.tools.ant.filters.ReplaceTokens
 
-apply plugin: 'java'
+plugins {
+    id 'com.github.johnrengelman.shadow' version '5.2.0'
+    id 'java'
+}
 
 archivesBaseName = "${compile_name}"
 version = "${version_minecraft}-${version_compile}"
@@ -25,10 +28,20 @@ repositories {
         name = 'sonatype'
         url = 'https://oss.sonatype.org/content/groups/public/'
     }
+    maven {
+        name = 'codemc-snapshots'
+        url = 'https://repo.codemc.io/repository/maven-snapshots'
+    }
+    maven {
+        name = 'skullcreator-repo'
+        url = 'https://dl.bintray.com/deanveloper/SkullCreator'
+    }
 }
 
 dependencies {
-    compile group: 'com.googlecode.json-simple', name: 'json-simple', version: '1.1'
+    compile group: 'net.wesjd', name: 'anvilgui', version: '1.4.0-SNAPSHOT'
+    compile 'dev.dbassett:skullcreator:3.0.0'
+    compileOnly group: 'com.googlecode.json-simple', name: 'json-simple', version: '1.1'
     compileOnly 'com.destroystokyo.paper:paper-api:1.12.2-R0.1-SNAPSHOT'
 }
 

@@ -18,10 +18,14 @@
 
 package com.noahhusby.sledgehammer.network;
 
+import com.noahhusby.sledgehammer.Sledgehammer;
 import com.noahhusby.sledgehammer.SmartObject;
 import com.noahhusby.sledgehammer.network.S2P.*;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.event.PluginMessageEvent;
+import net.md_5.bungee.api.plugin.Listener;
+import net.md_5.bungee.event.EventHandler;
+import net.md_5.bungee.event.EventPriority;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -30,7 +34,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SledgehammerNetworkManager {
+public class SledgehammerNetworkManager implements Listener {
     private static SledgehammerNetworkManager mInstance = null;
 
     public static SledgehammerNetworkManager getInstance() {
@@ -41,6 +45,7 @@ public class SledgehammerNetworkManager {
     private final List<IS2PPacket> registeredPackets;
 
     private SledgehammerNetworkManager() {
+        Sledgehammer.addListener(this);
         registeredPackets = new ArrayList<>();
 
         register(new S2PInitializationPacket());
@@ -49,6 +54,8 @@ public class SledgehammerNetworkManager {
         register(new S2PWarpPacket());
         register(new S2PWebMapPacket());
         register(new S2PPlayerUpdatePacket());
+        register(new S2PPermissionPacket());
+        register(new S2PWarpConfigPacket());
     }
 
     /**
@@ -80,13 +87,14 @@ public class SledgehammerNetworkManager {
             e.printStackTrace();
         }
 
-        ProxyServer.getInstance().getServerInfo(packet.getPacketInfo().getServer()).sendData("sledgehammer:channel", stream.toByteArray());
+        ProxyServer.getInstance().getServerInfo(packet.getPacketInfo().getServer()).sendData("sledgehammer:channel", stream.toByteArray(), true);
     }
 
     /**
      * Checks for sledgehammer packets from incoming plugin messages
      * @param e {@link PluginMessageEvent}
      */
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onIncomingPacket(PluginMessageEvent e) {
         if (!e.getTag().equalsIgnoreCase("sledgehammer:channel")) return;
         DataInputStream in = new DataInputStream(new ByteArrayInputStream(e.getData()));
@@ -105,7 +113,7 @@ public class SledgehammerNetworkManager {
             }
         } catch (ParseException ex) {
             ex.printStackTrace();
-        }
+        } catch (Exception ignored) { }
     }
 
     /**

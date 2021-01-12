@@ -20,18 +20,31 @@ package com.noahhusby.sledgehammer.players;
 
 public enum GameMode {
 
-    NONE(-1),
+    NONE(-1, ""),
 
-    CREATIVE(1),
+    CREATIVE(1, "creative"),
 
-    SURVIVAL(0),
+    SURVIVAL(0, "survival"),
 
-    ADVENTURE(2),
+    ADVENTURE(2, "adventure"),
 
-    SPECTATOR(3);
-
+    SPECTATOR(3, "spectator");
+	
     private final int value;
-    GameMode(final int value) {
+    private final String name;
+    
+    GameMode(final int value, final String name) {
         this.value = value;
+        this.name = name;
     }
+    
+    @Override
+	public String toString() {
+    	return this.name;
+    }
+    
+    public int getId() {
+    	return this.value;
+    }
+    
 }

@@ -18,9 +18,12 @@
 
 package com.noahhusby.sledgehammer.players;
 
+import com.noahhusby.sledgehammer.Sledgehammer;
 import com.noahhusby.sledgehammer.SledgehammerUtil;
 import com.noahhusby.sledgehammer.chat.ChatHelper;
 import com.noahhusby.sledgehammer.chat.TextElement;
+import com.noahhusby.sledgehammer.config.ServerConfig;
+import com.noahhusby.sledgehammer.config.SledgehammerServer;
 import com.noahhusby.sledgehammer.datasets.OpenStreetMaps;
 import com.noahhusby.sledgehammer.datasets.Point;
 import com.noahhusby.sledgehammer.network.P2S.P2STeleportPacket;
@@ -41,7 +44,7 @@ public class FlaggedBorderCheckerThread implements Runnable{
     public void run() {
         for(SledgehammerPlayer p : PlayerManager.getInstance().getPlayers()) {
             if(p.isFlagged()) {
-                if(p.getAttributes().contains("NO_BORDER")) {
+                if(p.checkAttribute("BORDER_MODE", false)) {
                     p.setFlagged(false);
                     p.setTrackingPoint(null);
                     return;
@@ -51,8 +54,12 @@ public class FlaggedBorderCheckerThread implements Runnable{
 
                 double[] proj = SledgehammerUtil.toGeo(Double.parseDouble(location.x), Double.parseDouble(location.z));
                 ServerInfo info = OpenStreetMaps.getInstance().getServerFromLocation(proj[0], proj[1], true);
+                if(info == null) continue;
+                SledgehammerServer server = ServerConfig.getInstance().getServer(info.getName());
+                if(server == null) continue;
+                if(server.isStealthMode()) continue;
 
-                if(info != null && !info.getName().equalsIgnoreCase(p.getServer().getInfo().getName())) {
+                if(!info.getName().equalsIgnoreCase(p.getServer().getInfo().getName())) {
                     p.connect(info);
                     SledgehammerNetworkManager.getInstance().send(new P2STeleportPacket(p.getName(), info.getName(), location));
                     Title title = ProxyServer.getInstance().createTitle();
@@ -66,11 +73,11 @@ public class FlaggedBorderCheckerThread implements Runnable{
 
                     Executors.newSingleThreadScheduledExecutor().schedule(() -> {
                         p.sendTitle(title);
-                        if(!p.getAttributes().contains("PASSED_BORDER")) {
+                        if(!p.checkAttribute("PASSED_BORDER", true)) {
                             p.sendMessage(ChatHelper.makeTextComponent(new TextElement("Reminder: ", ChatColor.RED, true),
                                     new TextElement("You can use ", ChatColor.GRAY), new TextElement("/border", ChatColor.YELLOW),
                                     new TextElement(" to toggle border teleportation!", ChatColor.GRAY)));
-                            p.getAttributes().add("PASSED_BORDER");
+                            p.getAttributes().put("PASSED_BORDER", true);
                         }
                     }, 2, TimeUnit.SECONDS);
                 }

@@ -51,6 +51,19 @@ public class ChatHelper {
         return bar;
     }
 
+    public static TextComponent makeTpllHelpComponent() {
+        TextComponent bar = new TextComponent(ConfigHandler.messagePrefix.replace("&","\u00A7"));
+
+        TextComponent interaction = new TextComponent(ChatColor.YELLOW + "Click here");
+        interaction.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://giant.gfycat.com/JitteryTerrificChimpanzee.webm"));
+        interaction.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("View the tpll guide").create()));
+        interaction.addExtra(new TextComponent(ChatColor.GRAY + " to see how to use " + ChatColor.BLUE + "/tpll"));
+
+        bar.addExtra(interaction);
+        return bar;
+
+    }
+
     public static TextComponent makeTitleMapComponent(TextElement text, String url) {
         TextComponent bar = new TextComponent(ConfigHandler.messagePrefix.replace("&","\u00A7"));
         TextComponent temp = new TextComponent(text.text);

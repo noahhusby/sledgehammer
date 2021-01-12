@@ -39,6 +39,7 @@ public class S2PPlayerUpdatePacket extends S2PPacket {
                 point.getString("z"), point.getString("yaw"), point.getString("pitch"));
 
         SledgehammerPlayer player = SledgehammerPlayer.getPlayer(info.getSender());
+        if(player == null) return;
         player.setLocation(p);
         player.setGameMode(GameMode.valueOf(data.getString("gameMode")));
     }

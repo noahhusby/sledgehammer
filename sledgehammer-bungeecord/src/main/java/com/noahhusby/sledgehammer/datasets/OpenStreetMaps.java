@@ -18,6 +18,7 @@
 
 package com.noahhusby.sledgehammer.datasets;
 
+import com.google.common.collect.Maps;
 import com.noahhusby.sledgehammer.Constants;
 import com.noahhusby.sledgehammer.config.ConfigHandler;
 import com.noahhusby.sledgehammer.config.ServerConfig;
@@ -33,6 +34,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 
 public class OpenStreetMaps {
     private static OpenStreetMaps instance = null;
@@ -61,7 +63,7 @@ public class OpenStreetMaps {
      * @return Returns {@link ServerInfo} if a valid region is found, or null if not
      */
     public ServerInfo getServerFromLocation(double lon, double lat) {
-        return getServerFromLocation(lon, lat, false);
+        return getServerFromLocation(lon, lat, ConfigHandler.useOfflineMode);
     }
 
     /**
@@ -73,46 +75,67 @@ public class OpenStreetMaps {
      */
     public ServerInfo getServerFromLocation(double lon, double lat, boolean offline) {
         Location location = offline ? getOfflineLocation(lon, lat) : getLocation(lon, lat);
+        if(location == null) return null;
+        Map<Location.detail, ServerInfo> serverInfoMap = Maps.newHashMap();
 
-        for(SledgehammerServer s : ServerConfig.getInstance().getServers()) {
-            if(!s.isEarthServer()) continue;
-            for(Location l : s.getLocations()) {
+        for (SledgehammerServer s : ServerConfig.getInstance().getServers()) {
+            if (!s.isEarthServer()) continue;
+            if(s.getLocations() == null || s.getLocations().isEmpty()) continue;
+            for (Location l : s.getLocations()) {
                 switch (l.detailType) {
                     case city:
-                        if(location.city.equals(l.city) &&
-                                (location.state.equals(l.state) ||
-                                        location.country.equals(l.country))) {
-                            return s.getServerInfo();
+                        if (location.city.equalsIgnoreCase(l.city) &&
+                                (location.state.equalsIgnoreCase(l.state) ||
+                                        location.country.equalsIgnoreCase(l.country))) {
+                            serverInfoMap.put(l.detailType, s.getServerInfo());
+                            continue;
                         }
                         break;
                     case county:
-                        if(!l.country.equals("")) {
-                            if(location.county.equals(l.county) &&
-                                    location.state.equals(l.state) &&
-                                    location.country.equals(l.country)) {
-                                return s.getServerInfo();
+                        if (!l.country.equals("")) {
+                            if (location.county.equalsIgnoreCase(l.county) &&
+                                    location.state.equalsIgnoreCase(l.state) &&
+                                    location.country.equalsIgnoreCase(l.country)) {
+                                serverInfoMap.put(l.detailType, s.getServerInfo());
+                                continue;
                             }
                         } else {
-                            if(location.county.equals(l.county) &&
-                                    location.state.equals(l.state)) {
-                                return s.getServerInfo();
+                            if (location.county.equalsIgnoreCase(l.county) &&
+                                    location.state.equalsIgnoreCase(l.state)) {
+                                serverInfoMap.put(l.detailType, s.getServerInfo());
+                                continue;
                             }
                         }
                         break;
                     case state:
-                        if(location.state.equals(l.state) &&
-                                location.country.equals(l.country)) {
-                            return s.getServerInfo();
+                        if (location.state.equalsIgnoreCase(l.state) &&
+                                location.country.equalsIgnoreCase(l.country)) {
+                            serverInfoMap.put(l.detailType, s.getServerInfo());
+                            continue;
                         }
                         break;
                     case country:
-                        if(location.country.equals(l.country)) {
-                            return s.getServerInfo();
+                        if (location.country.equalsIgnoreCase(l.country)) {
+                            serverInfoMap.put(l.detailType, s.getServerInfo());
+                            continue;
                         }
                         break;
                 }
             }
         }
+
+        if (serverInfoMap.get(Location.detail.city) != null)
+            return serverInfoMap.get(Location.detail.city);
+
+        if (serverInfoMap.get(Location.detail.county) != null)
+            return serverInfoMap.get(Location.detail.county);
+
+        if (serverInfoMap.get(Location.detail.state) != null)
+            return serverInfoMap.get(Location.detail.state);
+
+        if (serverInfoMap.get(Location.detail.country) != null)
+            return serverInfoMap.get(Location.detail.country);
+
         return null;
     }
 

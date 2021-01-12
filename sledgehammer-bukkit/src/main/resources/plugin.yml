@@ -1,5 +1,5 @@
 name: Sledgehammer
-version: 0.4.0
+version: 0.4.2
 main: com.noahhusby.sledgehammer.Sledgehammer
 prefix: Sledgehammer
 authors: [ noahhusby ]

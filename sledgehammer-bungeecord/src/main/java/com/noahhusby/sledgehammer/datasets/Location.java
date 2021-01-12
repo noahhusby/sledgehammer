@@ -18,14 +18,19 @@
 
 package com.noahhusby.sledgehammer.datasets;
 
-import com.noahhusby.lib.data.storage.Storable;
+import com.google.gson.annotations.Expose;
 import org.json.simple.JSONObject;
 
-public class Location implements Storable {
+public class Location {
+    @Expose
     public detail detailType;
+    @Expose
     public String city = "";
+    @Expose
     public String county = "";
+    @Expose
     public String state = "";
+    @Expose
     public String country = "";
 
     public Location() {}
@@ -38,13 +43,6 @@ public class Location implements Storable {
         if(country != null) this.country = country.toLowerCase();
     }
 
-    @Override
-    public Storable load(JSONObject data) {
-        return new Location(detail.valueOf((String) data.get("detailType")), (String)  data.get("city"),
-                (String) data.get("county"), (String) data.get("state"), (String) data.get("country"));
-    }
-
-    @Override
     public JSONObject save(JSONObject data) {
         data.put("detailType", detailType.name());
         data.put("city", city);

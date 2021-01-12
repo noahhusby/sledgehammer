@@ -20,12 +20,16 @@ package com.noahhusby.sledgehammer.config;
 
 import com.google.common.collect.Maps;
 import com.noahhusby.lib.data.storage.StorageList;
+import com.noahhusby.sledgehammer.Sledgehammer;
 import com.noahhusby.sledgehammer.datasets.Location;
 import com.noahhusby.sledgehammer.network.P2S.P2SInitializationPacket;
 import com.noahhusby.sledgehammer.network.SledgehammerNetworkManager;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.event.ServerConnectedEvent;
+import net.md_5.bungee.api.plugin.Listener;
+import net.md_5.bungee.event.EventHandler;
+import net.md_5.bungee.event.EventPriority;
 import org.json.simple.JSONObject;
 
 import java.util.ArrayList;
@@ -33,7 +37,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-public class ServerConfig {
+public class ServerConfig implements Listener {
     private static ServerConfig instance;
 
     public static ServerConfig getInstance() {
@@ -41,8 +45,13 @@ public class ServerConfig {
         return instance;
     }
 
-    public StorageList<SledgehammerServer> servers = new StorageList<>(SledgehammerServer.class);
-    public Map<String, String> initializedServers = Maps.newHashMap();
+    private final StorageList<SledgehammerServer> servers = new StorageList<>(SledgehammerServer.class);
+    private final StorageList<ServerGroup> groups = new StorageList<>(ServerGroup.class);
+    private final Map<String, String> initialized = Maps.newHashMap();
+
+    private ServerConfig() {
+        Sledgehammer.addListener(this);
+    }
 
     /**
      * Gets all registered {@link SledgehammerServer}
@@ -60,12 +69,18 @@ public class ServerConfig {
     public void initialize(ServerInfo serverInfo, JSONObject data) {
         String version = (String) data.get("version");
         String name = serverInfo.getName();
-        initializedServers.remove(name);
-        initializedServers.put(serverInfo.getName(), version);
+
         SledgehammerServer s = getServer(name);
-        if(s != null) {
-            s.initialize(version);
+        if(s == null) {
+            s = new SledgehammerServer(name);
+            servers.add(s);
+            servers.save(true);
         }
+
+        if(s.isInitialized()) return;
+
+        s.initialize(version);
+        initialized.put(s.getName(), version);
     }
 
     /**
@@ -108,8 +123,9 @@ public class ServerConfig {
      * @return {@link SledgehammerServer}
      */
     public SledgehammerServer getServer(String name) {
-        for(SledgehammerServer s : servers)
+        for(SledgehammerServer s : servers) {
             if(s.getName().equalsIgnoreCase(name)) return s;
+        }
 
         return null;
     }
@@ -127,28 +143,27 @@ public class ServerConfig {
     }
 
     /**
-     * Checks for pre-initialized servers and updates the SledgehammerServer object
+     * Gets list of {@link ServerGroup}
+     * @return List of {@link ServerGroup}
      */
-    public void checkReadyServers() {
-        for(SledgehammerServer server : servers) {
-            if(server.isInitialized() || server.getServerInfo().getPlayers().isEmpty()) continue;
-            for(String s : initializedServers.keySet()) {
-                if(s.equalsIgnoreCase(server.getName())) {
-                    server.initialize(initializedServers.get(s));
-                    return;
-                }
-            }
-        }
+    public StorageList<ServerGroup> getGroups() {
+        return groups;
+    }
+
+    /**
+     * Gets map of initialized servers with SH versions
+     * @return Map of initialized servers
+     */
+    public Map<String, String> getInitializedMap() {
+        return initialized;
     }
 
     /**
      * Sends initialization packet on join
      * @param e {@link net.md_5.bungee.api.event.ServerConnectedEvent}
      */
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onServerJoin(ServerConnectedEvent e) {
-        SledgehammerServer s = getServer(e.getServer().getInfo().getName());
-        if(s == null) return;
-        if(s.isInitialized() || initializedServers.containsKey(s.getName())) return;
         SledgehammerNetworkManager.getInstance().send(new P2SInitializationPacket(e.getPlayer().getName(), e.getServer().getInfo().getName()));
     }
 }

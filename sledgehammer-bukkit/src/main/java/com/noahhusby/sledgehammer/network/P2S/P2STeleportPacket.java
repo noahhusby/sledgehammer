@@ -51,7 +51,7 @@ public class P2STeleportPacket extends P2SPacket {
         Point point = new Point((String) pointData.get("x"), (String) pointData.get("y"), (String) pointData.get("z"),
                 (String) pointData.get("pitch"), (String) pointData.get("yaw"));
 
-        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), String.format("tp %s %s %s %s %s %s", info.getSender(), point.x,
+        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), String.format("minecraft:tp %s %s %s %s %s %s", info.getSender(), point.x,
                 point.y, point.z, point.yaw, point.pitch));
     }
 }

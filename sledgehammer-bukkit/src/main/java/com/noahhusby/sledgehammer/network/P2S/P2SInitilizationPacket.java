@@ -32,6 +32,6 @@ public class P2SInitilizationPacket extends P2SPacket {
     @Override
     public void onMessage(PacketInfo info, SmartObject data) {
         Sledgehammer.bungeecordName = info.getServer();
-        getManager().sendPacket(new S2PInitializationPacket(SledgehammerUtil.getPlayerFromName(info.getSender())));
+        getManager().send(new S2PInitializationPacket(SledgehammerUtil.getPlayerFromName(info.getSender())));
     }
 }

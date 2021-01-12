@@ -42,7 +42,10 @@ public class ServerFragment extends FragmentManager implements ICommandFragment 
         registerCommandFragment(new ServerListLocationFragment());
         registerCommandFragment(new ServerEarthModeFragment());
         registerCommandFragment(new ServerSHSelectFragment());
+        registerCommandFragment(new ServerStealthModeFragment());
+        registerCommandFragment(new ServerGroupFragment());
         registerCommandFragment(new ServerSetFriendlyFragment());
+        registerCommandFragment(new ServerOffsetFragment());
     }
 
     @Override

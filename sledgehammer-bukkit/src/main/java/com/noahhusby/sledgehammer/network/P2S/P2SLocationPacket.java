@@ -47,14 +47,22 @@ public class P2SLocationPacket extends P2SPacket {
         String lat = data.getString("lat");
         String lon = data.getString("lon");
 
+        int xOffset = 0;
+        int zOffset = 0;
+
+        try {
+            xOffset = Integer.parseInt(data.getString("xOffset"));
+            zOffset = Integer.parseInt(data.getString("zOffset"));
+        } catch (Exception ignored) { }
+
         GeographicProjection projection = new ModifiedAirocean();
         GeographicProjection uprightProj = GeographicProjection.orientProjection(projection, GeographicProjection.Orientation.upright);
         ScaleProjection scaleProj = new ScaleProjection(uprightProj, Constants.SCALE, Constants.SCALE);
 
         double proj[] = scaleProj.fromGeo(Double.parseDouble(lon), Double.parseDouble(lat));
 
-        int x = (int) Math.floor(proj[0]);
-        int z = (int) Math.floor(proj[1]);
+        int x = (int) Math.floor(proj[0]) + xOffset;
+        int z = (int) Math.floor(proj[1]) + zOffset;
 
         int y = Constants.scanHeight;
 
@@ -66,7 +74,7 @@ public class P2SLocationPacket extends P2SPacket {
             y -= 1;
         }
 
-        Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(),String.format("tp %s %s %s %s", player.getName(), x, y+1, z));
+        Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(),String.format("minecraft:tp %s %s %s %s", player.getName(), x, y+1, z));
 
     }
 }

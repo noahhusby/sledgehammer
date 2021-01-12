@@ -18,14 +18,23 @@
 
 package com.noahhusby.sledgehammer.commands.fragments.admin.server;
 
+import com.noahhusby.lib.data.JsonUtils;
+import com.noahhusby.sledgehammer.SledgehammerUtil;
 import com.noahhusby.sledgehammer.chat.ChatConstants;
+import com.noahhusby.sledgehammer.chat.ChatHelper;
+import com.noahhusby.sledgehammer.chat.TextElement;
 import com.noahhusby.sledgehammer.commands.fragments.ICommandFragment;
 import com.noahhusby.sledgehammer.config.ServerConfig;
-import com.noahhusby.sledgehammer.dialogs.scenes.location.LocationSelectionScene;
+import com.noahhusby.sledgehammer.config.SledgehammerServer;
+import com.noahhusby.sledgehammer.datasets.Location;
+import com.noahhusby.sledgehammer.dialogs.scenes.location.*;
 import com.noahhusby.sledgehammer.dialogs.DialogHandler;
+import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+
+import java.io.IOException;
 
 public class ServerAddLocationFragment implements ICommandFragment {
 
@@ -46,6 +55,54 @@ public class ServerAddLocationFragment implements ICommandFragment {
             return;
         }
 
+        if(args.length > 2) {
+            String arg = SledgehammerUtil.getRawArguments(SledgehammerUtil.selectArray(args, 2));
+            if(arg.equalsIgnoreCase("city")) {
+                DialogHandler.getInstance().startDialog(sender, new CityScene(ProxyServer.getInstance().getServerInfo(args[0])));
+                return;
+            } else if(arg.equalsIgnoreCase("county")) {
+                DialogHandler.getInstance().startDialog(sender, new CountyScene(ProxyServer.getInstance().getServerInfo(args[0])));
+                return;
+            } else if(arg.equalsIgnoreCase("state")) {
+                DialogHandler.getInstance().startDialog(sender, new StateScene(ProxyServer.getInstance().getServerInfo(args[0])));
+                return;
+            } else if(arg.equalsIgnoreCase("country")) {
+                DialogHandler.getInstance().startDialog(sender, new CountryScene(ProxyServer.getInstance().getServerInfo(args[0])));
+                return;
+            }
+
+            boolean validJson = false;
+            try {
+                validJson = JsonUtils.isJsonValid(arg);
+            } catch (IOException ignored) { }
+
+            if(validJson) {
+                Location l = SledgehammerUtil.JsonUtils.gson.fromJson(arg, Location.class);
+                if(l == null) {
+                    sender.sendMessage(ChatColor.RED + "Unable to parse json location! Please try again.");
+                    return;
+                }
+
+                SledgehammerServer s = ServerConfig.getInstance().getServer(args[0]);
+                s.getLocations().add(l);
+                ServerConfig.getInstance().pushServer(s);
+
+                String x = "";
+                if(!l.city.equals("")) x+= ChatHelper.capitalize(l.city)+", ";
+                if(!l.county.equals("")) x+= ChatHelper.capitalize(l.county)+", ";
+                if(!l.state.equals("")) x+= ChatHelper.capitalize(l.state)+", ";
+                if(!l.country.equals("")) x+= ChatHelper.capitalize(l.country);
+                sender.sendMessage(ChatHelper.makeAdminTextComponent(
+                        new TextElement("Successfully added ", ChatColor.GRAY),
+                        new TextElement(l.detailType + ": ", ChatColor.BLUE),
+                        new TextElement(x, ChatColor.RED)));
+                return;
+            } else if(arg.contains("{")) {
+                sender.sendMessage(ChatColor.RED + "Unable to parse json location! Please try again.");
+                return;
+            }
+
+        }
         DialogHandler.getInstance().startDialog(sender, new LocationSelectionScene(ProxyServer.getInstance().getServerInfo(args[0])));
     }
 
@@ -61,6 +118,6 @@ public class ServerAddLocationFragment implements ICommandFragment {
 
     @Override
     public String[] getArguments() {
-        return null;
+        return new String[]{"[city|county|state|county|{json}]"};
     }
 }

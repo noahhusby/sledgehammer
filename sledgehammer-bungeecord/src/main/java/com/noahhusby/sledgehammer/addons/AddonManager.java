@@ -22,6 +22,7 @@ import com.noahhusby.sledgehammer.Sledgehammer;
 import net.md_5.bungee.api.event.PluginMessageEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
+import net.md_5.bungee.event.EventPriority;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,7 +37,7 @@ public class AddonManager implements Listener {
     }
 
     private AddonManager() {
-        Sledgehammer.setupListener(this);
+        Sledgehammer.addListener(this);
     }
 
     List<IAddon> addons = new ArrayList<>();
@@ -51,9 +52,10 @@ public class AddonManager implements Listener {
 
     public void onDisable() {
         addons.forEach(IAddon::onDisable);
+        addons.clear(); // If the plugin is reloading, new instances of the add-ons will be registered again
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onPluginMessage(PluginMessageEvent e) {
         IAddon addon = getServerByChannel(e.getTag());
         if(addon != null) addon.onPluginMessage(e);
