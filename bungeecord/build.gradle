@@ -1,5 +1,5 @@
 dependencies {
-    implementation "com.zaxxer:HikariCP:4.0.3"
+    implementation "com.zaxxer:HikariCP:5.0.0"
     compileOnly "com.google.guava:guava:$guavaVersion"
     compileOnly "net.md-5:bungeecord-api:1.16-R0.5-SNAPSHOT"
 }
